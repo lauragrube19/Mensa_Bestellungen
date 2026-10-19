@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>CampusBiss - Mensa Vorbestellung</title>
+  <title>CampusBiss - Mensa Vorbestellung mit Allergenen</title>
   <style>
     :root {
       --primary-color: #3498db;
@@ -121,7 +121,7 @@
 
     .option-left {
       display: flex;
-      align-items: center;
+      align-items: flex-start;
       gap: 12px;
     }
 
@@ -130,15 +130,34 @@
       height: 20px;
       accent-color: var(--primary-color);
       cursor: pointer;
+      margin-top: 2px;
+    }
+
+    .option-info {
+      display: flex;
+      flex-direction: column;
+    }
+
+    .option-title {
+      font-weight: 600;
+      color: var(--text-color);
+    }
+
+    .allergens {
+      font-size: 0.8em;
+      color: #e67e22;
+      font-weight: bold;
+      margin-top: 3px;
     }
 
     .price-tag {
       font-weight: bold;
-      color: #e67e22;
-      background: #fef5ec;
-      padding: 4px 8px;
+      color: #2c3e50;
+      background: #edf2f7;
+      padding: 6px 10px;
       border-radius: 6px;
-      font-size: 0.9em;
+      font-size: 0.95em;
+      white-space: nowrap;
     }
 
     .dynamic-section {
@@ -211,7 +230,6 @@
       box-shadow: none;
     }
 
-    /* Lade-Spinner Animation */
     .spinner {
       width: 20px;
       height: 20px;
@@ -226,7 +244,7 @@
       to { transform: rotate(360deg); }
     }
 
-    /* MODAL / POP-UP BESTÄTIGUNGSFENSTER */
+    /* MODAL */
     .modal-overlay {
       position: fixed;
       top: 0;
@@ -300,6 +318,16 @@
       background-color: #219150;
     }
 
+    .allergen-legend {
+      font-size: 0.85em;
+      color: #7f8c8d;
+      background: #f8fafc;
+      padding: 12px;
+      border-radius: 6px;
+      margin-bottom: 25px;
+      border: 1px solid #e2e8f0;
+    }
+
     @media (max-width: 600px) {
       .container { padding: 20px; }
       h2 { font-size: 1.8em; }
@@ -311,7 +339,12 @@
 <div class="container">
   <div class="header-section">
     <h2>CampusBiss 🍽️</h2>
-    <p class="subtitle">Deine Mensa-Vorbestellung mit Live-Bestätigung</p>
+    <p class="subtitle">Mensa-Vorbestellung mit Allergenkennzeichnung</p>
+  </div>
+
+  <!-- Kurze Legende für Allergene -->
+  <div class="allergen-legend">
+    <b>Allergene:</b> [Gl] Gluten, [Mi] Milch/Laktose, [Ei] Ei, [So] Soja, [Sel] Sellerie
   </div>
 
   <form id="orderForm">
@@ -326,23 +359,29 @@
       <input type="text" id="matrikelnummer" pattern="\d{6}" required placeholder="123456" title="Bitte gib deine 6-stellige Matrikelnummer ein.">
     </div>
 
-    <!-- Hauptgericht mit Preisen -->
+    <!-- Hauptgericht mit Allergenen & Preisen -->
     <div class="form-group">
       <label class="main-label">Hauptgericht wählen *</label>
       <div class="option-container">
         
         <label class="option-label" for="gericht1">
           <div class="option-left">
-            <input type="radio" name="hauptgericht" id="gericht1" value="Vegetarisch: Gemüselasagne" data-price="4.50" class="option-input" required onclick="handleMealChange(this)">
-            <span>🌿 Vegetarisch: Gemüselasagne</span>
+            <input type="radio" name="hauptgericht" id="gericht1" value="Vegetarisch: Gemüselasagne (Allergene: Gl, Mi)" data-price="4.50" class="option-input" required onclick="handleMealChange(this)">
+            <div class="option-info">
+              <span class="option-title">🌿 Vegetarisch: Gemüselasagne</span>
+              <span class="allergens">Enthält: [Gl] Gluten, [Mi] Milch</span>
+            </div>
           </div>
           <span class="price-tag">4,50 €</span>
         </label>
 
         <label class="option-label" for="gericht2">
           <div class="option-left">
-            <input type="radio" name="hauptgericht" id="gericht2" value="Fleisch: Hähnchencurry mit Reis" data-price="5.20" class="option-input" onclick="handleMealChange(this)">
-            <span>🍗 Fleisch: Hähnchencurry mit Reis</span>
+            <input type="radio" name="hauptgericht" id="gericht2" value="Fleisch: Hähnchencurry mit Reis (Allergene: Sel, So)" data-price="5.20" class="option-input" onclick="handleMealChange(this)">
+            <div class="option-info">
+              <span class="option-title">🍗 Fleisch: Hähnchencurry mit Reis</span>
+              <span class="allergens">Enthält: [Sel] Sellerie, [So] Soja</span>
+            </div>
           </div>
           <span class="price-tag">5,20 €</span>
         </label>
@@ -350,7 +389,10 @@
         <label class="option-label" for="gericht3">
           <div class="option-left">
             <input type="radio" name="hauptgericht" id="gericht3" value="Spezial: Salatteller / Custom Bowl" data-price="4.00" class="option-input" onclick="handleMealChange(this)">
-            <span>🥗 Spezial: Individueller Salatteller</span>
+            <div class="option-info">
+              <span class="option-title">🥗 Spezial: Individueller Salatteller</span>
+              <span class="allergens">Basis: Frisch (ohne Haupt-Allergene)</span>
+            </div>
           </div>
           <span class="price-tag">4,00 €</span>
         </label>
@@ -358,36 +400,42 @@
       </div>
     </div>
 
-    <!-- DYNAMISCHER BEREICH -->
+    <!-- DYNAMISCHER BEREICH (Toppings mit Allergenen) -->
     <div id="bowlOptions" class="dynamic-section">
       <div class="form-group" style="margin-bottom: 0;">
         <label for="beilage" class="main-label">Wähle dein Extra-Topping:</label>
         <select id="beilage" onchange="calculateTotal()">
           <option value="" disabled selected data-price="0">Bitte wählen...</option>
-          <option value="Falafel" data-price="1.50">Kichererbsen-Falafel (+ 1,50 €)</option>
-          <option value="Hähnchenbruststreifen" data-price="2.00">Gegrillte Hähnchenbrust (+ 2,00 €)</option>
-          <option value="Tofu" data-price="1.80">Räuchertofu (+ 1,80 €)</option>
+          <option value="Falafel (Allergene: Gl)" data-price="1.50">Kichererbsen-Falafel [Gl] (+ 1,50 €)</option>
+          <option value="Hähnchenbruststreifen (Keine Allergene)" data-price="2.00">Gegrillte Hähnchenbrust (ohne Allergene) (+ 2,00 €)</option>
+          <option value="Tofu (Allergene: So)" data-price="1.80">Räuchertofu [So] (+ 1,80 €)</option>
         </select>
       </div>
     </div>
 
-    <!-- Desserts mit Preisen -->
+    <!-- Desserts mit Allergenen & Preisen -->
     <div class="form-group">
       <label class="main-label">Dessert / Extras (optional)</label>
       <div class="option-container">
         
         <label class="option-label" for="dessert1">
           <div class="option-left">
-            <input type="checkbox" name="dessert" id="dessert1" value="Obstsalat" data-price="1.20" class="option-input" onclick="handleCheckboxChange()">
-            <span>🍎 Frischer Obstsalat</span>
+            <input type="checkbox" name="dessert" id="dessert1" value="Obstsalat (Keine Allergene)" data-price="1.20" class="option-input" onclick="handleCheckboxChange()">
+            <div class="option-info">
+              <span class="option-title">🍎 Frischer Obstsalat</span>
+              <span class="allergens">Enthält: Keine Allergene</span>
+            </div>
           </div>
           <span class="price-tag">1,20 €</span>
         </label>
 
         <label class="option-label" for="dessert2">
           <div class="option-left">
-            <input type="checkbox" name="dessert" id="dessert2" value="Schokopudding" data-price="1.50" class="option-input" onclick="handleCheckboxChange()">
-            <span>🍫 Schokopudding</span>
+            <input type="checkbox" name="dessert" id="dessert2" value="Schokopudding (Allergene: Mi)" data-price="1.50" class="option-input" onclick="handleCheckboxChange()">
+            <div class="option-info">
+              <span class="option-title">🍫 Schokopudding</span>
+              <span class="allergens">Enthält: [Mi] Milch</span>
+            </div>
           </div>
           <span class="price-tag">1,50 €</span>
         </label>
@@ -395,10 +443,10 @@
       </div>
     </div>
 
-    <!-- Sonstiges -->
+    <!-- Sonstiges / Allergiehinweis -->
     <div class="form-group">
-      <label for="unvertraeglichkeiten" class="main-label">Unverträglichkeiten / Wünsche</label>
-      <input type="text" id="unvertraeglichkeiten" placeholder="z. B. laktosefrei, keine Nüsse">
+      <label for="unvertraeglichkeiten" class="main-label">Spezielle Unverträglichkeiten / Hinweise</label>
+      <input type="text" id="unvertraeglichkeiten" placeholder="z. B. strenge Laktoseunverträglichkeit, Glutenallergie">
     </div>
 
     <!-- Abholzeit -->
@@ -420,18 +468,17 @@
   </form>
 </div>
 
-<!-- ERFOLGS-MODAL (Pop-up Bestätigung) -->
+<!-- MODAL -->
 <div id="successModal" class="modal-overlay">
   <div class="modal-box">
     <div class="modal-icon">✅</div>
     <div class="modal-title">Erfolgreich bestellt!</div>
-    <div class="modal-text" id="modalMessage">Deine Vorbestellung wurde erfolgreich an die Mensa übermittelt und in Google Sheets gespeichert. Guten Appetit!</div>
+    <div class="modal-text" id="modalMessage">Deine Vorbestellung inklusive Allergen-Angaben wurde übermittelt. Guten Appetit!</div>
     <button class="modal-btn" onclick="closeModal()">Alles klar</button>
   </div>
 </div>
 
 <script>
-  // Gesamtpreis berechnen
   function calculateTotal() {
     let total = 0;
     const selectedMeal = document.querySelector('input[name="hauptgericht"]:checked');
@@ -491,10 +538,9 @@
     calculateTotal();
   }
 
-  // Modal Pop-up steuern
   function showModal(name, time) {
     document.getElementById('modalMessage').innerHTML = 
-      `<b>Vielen Dank, ${name}!</b><br>Deine Bestellung für ca. <b>${time} Uhr</b> wurde erfolgreich abgeschickt und in der Mensa registriert.`;
+      `<b>Vielen Dank, ${name}!</b><br>Deine Vorbestellung für ca. <b>${time} Uhr</b> wurde erfolgreich mit allen Angaben an die Mensa übertragen.`;
     document.getElementById('successModal').classList.add('active');
   }
 
@@ -503,7 +549,7 @@
   }
 
   // --- FORMULAR-VERARBEITUNG & ABSENDEN ---
-  const scriptURL = 'https://script.google.com/macros/s/AKfycbweN1asQkduCo35lFI_47r--d4zZEPBeDxosX0PIv5z3WjsK9yRd8-il6o5jASbtrAI-A/exec'; // <-- HIER URL EINTRAGEN
+  const scriptURL = 'https://script.google.com/macros/s/AKfycbxFz2mZ_HpgNdBc8BkYKKP2lKp_YCMAil1egNdesKzMwaKHkjMc3C20p8wuReYpU1cQ/exec'; // <-- HIER URL EINTRAGEN
 
   document.getElementById('orderForm').addEventListener('submit', function(e) {
     e.preventDefault();
@@ -512,7 +558,6 @@
     const btnText = document.getElementById('btnText');
     const loadingSpinner = document.getElementById('loadingSpinner');
     
-    // UI in Ladezustand versetzen (Spinner an)
     submitBtn.disabled = true;
     btnText.innerText = "Wird übertragen...";
     loadingSpinner.style.display = 'inline-block';
@@ -544,13 +589,11 @@
       body: JSON.stringify(formData)
     })
     .then(() => {
-        // Erfolgreich abgeschickt -> Formular zurücksetzen
         document.getElementById('orderForm').reset();
         document.getElementById('bowlOptions').style.display = 'none';
         document.querySelectorAll('.option-label').forEach(l => l.classList.remove('selected'));
         calculateTotal();
         
-        // Visuelles Bestätigungs-Modal öffnen
         showModal(userName, pickupTime);
     })
     .catch(error => {
@@ -558,7 +601,6 @@
       console.error('Error!', error);
     })
     .finally(() => {
-      // Ladezustand beenden
       submitBtn.disabled = false;
       btnText.innerText = "Kostenpflichtig vorbestellen";
       loadingSpinner.style.display = 'none';
